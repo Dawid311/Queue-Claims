@@ -14,13 +14,20 @@ class GoogleSheetsService {
       
       // Check if we have service account key as environment variable (for Railway/Heroku)
       if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
-        const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
-        auth = new google.auth.GoogleAuth({
-          credentials: credentials,
-          scopes: ['https://www.googleapis.com/auth/spreadsheets']
-        });
+        console.log('🔑 Verwende Service Account aus Environment Variable');
+        try {
+          const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+          auth = new google.auth.GoogleAuth({
+            credentials: credentials,
+            scopes: ['https://www.googleapis.com/auth/spreadsheets']
+          });
+        } catch (parseError) {
+          console.error('❌ Fehler beim Parsen der Service Account Credentials:', parseError.message);
+          throw new Error('Invalid GOOGLE_SERVICE_ACCOUNT_KEY format. Must be valid JSON.');
+        }
       } else {
         // Use local file (for development)
+        console.log('🔑 Verwende Service Account aus lokaler Datei');
         const keyPath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_PATH || './credentials/service-account-key.json';
         const absoluteKeyPath = path.resolve(keyPath);
         

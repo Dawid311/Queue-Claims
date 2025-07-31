@@ -207,15 +207,34 @@ In Railway → Ihr Projekt → Settings → Variables:
 
 ```bash
 NODE_ENV=production
-GOOGLE_SHEET_ID=your_actual_sheet_id_here
-GOOGLE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"..."}
+GOOGLE_SHEET_ID=159BP31mnBsZXyseTP36tBooaeCnVCHSoI3kvrV-UntQ
+GOOGLE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"your-project"}
 TRANSFER_API_URL=https://token-transfer-claim.vercel.app/transfer
 PROCESSING_INTERVAL=15000
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 ```
 
-**Wichtig:** Für `GOOGLE_SERVICE_ACCOUNT_KEY` kopieren Sie den kompletten Inhalt Ihrer `service-account-key.json` als eine Zeile.
+**⚠️ Wichtig für GOOGLE_SERVICE_ACCOUNT_KEY:**
+1. Öffnen Sie Ihre `service-account-key.json` Datei
+2. Kopieren Sie den **kompletten Inhalt** 
+3. **Entfernen Sie alle Zeilenumbrüche und Leerzeichen**
+4. Es sollte eine einzige Zeile sein: `{"type":"service_account","project_id":"...",...}`
+
+**Beispiel der korrekten Formatierung:**
+```
+{"type":"service_account","project_id":"your-project-id","private_key_id":"your-key-id","private_key":"-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n","client_email":"your-service-account@your-project.iam.gserviceaccount.com","client_id":"your-client-id","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/your-service-account%40your-project.iam.gserviceaccount.com","universe_domain":"googleapis.com"}
+```
+
+**🔧 Hilfs-Tool:** Verwenden Sie das Script um Ihre Key korrekt zu formatieren:
+```bash
+node scripts/format-service-key.js ./credentials/service-account-key.json
+```
+
+**🔧 Hilfs-Tool:** Verwenden Sie das Script um Ihre Key korrekt zu formatieren:
+```bash
+node scripts/format-service-key.js ./credentials/service-account-key.json
+```
 
 #### 3. Domain konfigurieren
 - Railway generiert automatisch eine URL (z.B. `your-app.railway.app`)
