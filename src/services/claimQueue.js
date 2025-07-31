@@ -104,7 +104,7 @@ class ClaimQueue {
       // Sende Request an Transfer API
       const response = await axios.post(this.transferApiUrl, {
         amount: claim.amount,
-        wallet: claim.wallet
+        walletAddress: claim.wallet  // API erwartet "walletAddress" nicht "wallet"
       }, {
         timeout: 30000, // 30 Sekunden Timeout
         headers: {
