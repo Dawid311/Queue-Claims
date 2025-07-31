@@ -192,17 +192,67 @@ npm test
 
 ## Deployment
 
-1. **Environment-Variablen setzen**
-2. **Google Service Account Credentials bereitstellen**
-3. **Port und Firewall konfigurieren**
-4. **Process Manager verwenden (PM2, systemd, etc.)**
+### Railway (Empfohlen)
 
+Railway ist perfekt für dieses Projekt, da es persistente Server unterstützt.
+
+#### 1. Railway Setup
+1. Gehen Sie zu [railway.app](https://railway.app) und melden Sie sich an
+2. Klicken Sie auf "New Project" → "Deploy from GitHub repo"
+3. Wählen Sie Ihr `Queue-Claims` Repository
+4. Railway erkennt automatisch die Node.js-Anwendung
+
+#### 2. Environment-Variablen setzen
+In Railway → Ihr Projekt → Settings → Variables:
+
+```bash
+NODE_ENV=production
+GOOGLE_SHEET_ID=your_actual_sheet_id_here
+GOOGLE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"..."}
+TRANSFER_API_URL=https://token-transfer-claim.vercel.app/transfer
+PROCESSING_INTERVAL=15000
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+```
+
+**Wichtig:** Für `GOOGLE_SERVICE_ACCOUNT_KEY` kopieren Sie den kompletten Inhalt Ihrer `service-account-key.json` als eine Zeile.
+
+#### 3. Domain konfigurieren
+- Railway generiert automatisch eine URL (z.B. `your-app.railway.app`)
+- Optional: Custom Domain in Settings → Domains
+
+### Alternative Deployment-Optionen
+
+#### Render.com
+- Ähnlich wie Railway
+- Kostenloser Tier verfügbar
+- Automatische SSL-Zertifikate
+
+#### DigitalOcean App Platform
+- $5/Monat für Basic Droplet
+- Vollständige Container-Unterstützung
+
+#### Heroku
+- Kostenloser Tier verfügbar (mit Einschränkungen)
+- Ähnliche Konfiguration wie Railway
+
+#### VPS (Ubuntu/Debian)
 ```bash
 # Mit PM2
 npm install -g pm2
 pm2 start index.js --name "queue-claims"
 pm2 startup
 pm2 save
+```
+
+### Docker Deployment
+```bash
+# Local build und run
+docker build -t queue-claims .
+docker run -d -p 3000:3000 --env-file .env queue-claims
+
+# Mit Docker Compose
+docker-compose up -d
 ```
 
 ## Sicherheit
