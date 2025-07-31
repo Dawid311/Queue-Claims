@@ -15,15 +15,39 @@ class GoogleSheetsService {
       // Check if we have service account key as environment variable (for Railway/Heroku)
       if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
         console.log('🔑 Verwende Service Account aus Environment Variable');
+        console.log('📋 Environment Variable gefunden, Länge:', process.env.GOOGLE_SERVICE_ACCOUNT_KEY.length);
+        
         try {
-          const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+          // Clean up the environment variable (remove extra whitespace and newlines)
+          let cleanKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY.trim();
+          
+          // Check if it starts with { and ends with }
+          if (!cleanKey.startsWith('{') || !cleanKey.endsWith('}')) {
+            throw new Error('Service Account Key muss ein JSON-Objekt sein (beginnt mit { und endet mit })');
+          }
+          
+          // Replace line breaks that might have been introduced by Railway
+          cleanKey = cleanKey.replace(/\r?\n/g, '\\n');
+          
+          console.log('🔍 Versuche JSON zu parsen...');
+          const credentials = JSON.parse(cleanKey);
+          
+          // Validate required fields
+          if (!credentials.type || !credentials.project_id || !credentials.private_key || !credentials.client_email) {
+            throw new Error('Service Account Key fehlen erforderliche Felder (type, project_id, private_key, client_email)');
+          }
+          
+          console.log('✅ Service Account erfolgreich geparst für Projekt:', credentials.project_id);
+          
           auth = new google.auth.GoogleAuth({
             credentials: credentials,
             scopes: ['https://www.googleapis.com/auth/spreadsheets']
           });
+          
         } catch (parseError) {
           console.error('❌ Fehler beim Parsen der Service Account Credentials:', parseError.message);
-          throw new Error('Invalid GOOGLE_SERVICE_ACCOUNT_KEY format. Must be valid JSON.');
+          console.error('📄 Environment Variable Inhalt (erste 100 Zeichen):', process.env.GOOGLE_SERVICE_ACCOUNT_KEY.substring(0, 100));
+          throw new Error(`Invalid GOOGLE_SERVICE_ACCOUNT_KEY format: ${parseError.message}`);
         }
       } else {
         // Use local file (for development)
