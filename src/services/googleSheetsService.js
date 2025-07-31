@@ -4,8 +4,8 @@ const path = require('path');
 class GoogleSheetsService {
   constructor() {
     this.sheets = null;
-    this.spreadsheetId = process.env.GOOGLE_SHEET_ID;
-    this.sheetName = 'Claims'; // Name des Arbeitsblatts
+    this.spreadsheetId = process.env.SPREADSHEET_ID || process.env.GOOGLE_SHEET_ID;
+    this.sheetName = 'Tokentransfer'; // Name des Arbeitsblatts
   }
 
   async initialize() {
