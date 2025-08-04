@@ -60,6 +60,9 @@ GOOGLE_SERVICE_ACCOUNT_KEY_PATH=./credentials/service-account-key.json
 TRANSFER_API_URL=https://token-transfer-claim.vercel.app/transfer
 PROCESSING_INTERVAL=15000
 
+# Security
+WEBHOOK_SECRET=your-super-secret-webhook-key-here
+
 # Rate Limiting
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
@@ -79,15 +82,28 @@ npm start
 
 ### API Endpoints
 
-#### 1. Claim hinzufügen
+#### 1. Claim hinzufügen (mit Webhook Security)
 ```http
 POST /api/claims
 Content-Type: application/json
+X-Webhook-Secret: your-webhook-secret
 
 {
   "amount": 100.50,
   "wallet": "0x1234567890abcdef1234567890abcdef12345678"
 }
+```
+
+**Alternative Auth-Methoden:**
+```http
+# Bearer Token
+Authorization: Bearer your-webhook-secret
+
+# API Key Header  
+X-API-Key: your-webhook-secret
+
+# Query Parameter
+POST /api/claims?webhook_secret=your-webhook-secret
 ```
 
 **Response:**
@@ -119,7 +135,12 @@ GET /api/claims/{claimId}
 GET /api/claims/stats
 ```
 
-#### 5. Health Checks
+#### 6. Security Status
+```http
+GET /api/claims/security
+```
+
+#### 7. Health Checks
 ```http
 GET /api/health
 GET /api/health/queue
@@ -212,6 +233,7 @@ NODE_ENV=production
 GOOGLE_SHEET_ID=159BP31mnBsZXyseTP36tBooaeCnVCHSoI3kvrV-UntQ
 TRANSFER_API_URL=https://token-transfer-claim.vercel.app/transfer
 PROCESSING_INTERVAL=15000
+WEBHOOK_SECRET=your-super-secret-webhook-key-here
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 
@@ -279,11 +301,41 @@ docker-compose up -d
 
 ## Sicherheit
 
+- **Webhook Security:** Optionaler Webhook-Secret für API-Zugriff
+  - Unterstützt: X-Webhook-Secret, Authorization Bearer, X-API-Key Headers
+  - Sichere String-Vergleichung gegen Timing-Attacken
+  - Optional: Query-Parameter und Body-basierte Authentifizierung
 - **Rate Limiting:** Begrenzt Requests pro IP
 - **Input Validation:** Validierung aller Eingaben
 - **CORS:** Konfigurierbare CORS-Richtlinien
 - **Helmet:** Security Headers
 - **Environment Variables:** Sensible Daten in .env
+
+### Webhook Security Setup
+
+1. **Secret generieren:**
+   ```bash
+   # Sicheres Random Secret (32 Bytes)
+   openssl rand -hex 32
+   ```
+
+2. **Environment Variable setzen:**
+   ```bash
+   WEBHOOK_SECRET=your-generated-secret-here
+   ```
+
+3. **API Requests authentifizieren:**
+   ```bash
+   curl -X POST your-api-url/api/claims \
+     -H "X-Webhook-Secret: your-secret" \
+     -H "Content-Type: application/json" \
+     -d '{"amount": 100, "wallet": "0x..."}'
+   ```
+
+4. **Security Status prüfen:**
+   ```bash
+   curl your-api-url/api/claims/security
+   ```
 
 ## Troubleshooting
 

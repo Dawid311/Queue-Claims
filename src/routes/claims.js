@@ -1,8 +1,12 @@
 const express = require('express');
+const WebhookSecurityMiddleware = require('../middleware/webhookSecurity');
 const router = express.Router();
 
-// POST /api/claims - Neuen Claim zur Queue hinzufügen
-router.post('/', async (req, res) => {
+// Webhook Security Middleware initialisieren
+const webhookSecurity = new WebhookSecurityMiddleware(process.env.WEBHOOK_SECRET);
+
+// POST /api/claims - Neuen Claim zur Queue hinzufügen (mit Webhook Security)
+router.post('/', webhookSecurity.middleware(), async (req, res) => {
   try {
     const { amount, wallet } = req.body;
 
@@ -111,6 +115,25 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Fehler beim Abrufen des Claims'
+    });
+  }
+});
+
+// GET /api/claims/security - Security-Status anzeigen
+router.get('/security', async (req, res) => {
+  try {
+    const securityStatus = webhookSecurity.getStatus();
+    
+    res.json({
+      success: true,
+      data: securityStatus
+    });
+
+  } catch (error) {
+    console.error('Fehler beim Abrufen des Security-Status:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Fehler beim Abrufen des Security-Status'
     });
   }
 });

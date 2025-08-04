@@ -50,6 +50,7 @@ echo "⚙️  Setze Environment Variablen..."
 railway variables set NODE_ENV=production
 railway variables set PORT=3000
 railway variables set SPREADSHEET_ID="DEINE_SPREADSHEET_ID_HIER"
+railway variables set WEBHOOK_SECRET="$(openssl rand -hex 32)"  # Generiere sicheres Webhook Secret
 
 # Google Service Account Variablen aus extrahierter Datei setzen
 while IFS= read -r line; do
